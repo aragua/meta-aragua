@@ -183,7 +183,7 @@ EOF
         -e "s,PACKAGECONFIG.*,,g" \
         -e "s,ASSUME_PROVIDED.*,,g" -i conf/local.conf
 
-    cp $CWD/sources/*aragua*/base/eukrea/*.conf conf/
+    cp $CWD/sources/meta-aragua/base/eukrea/*.conf conf/
 
     for s in $HOME/.oe $HOME/.yocto; do
         if [ -e $s/site.conf ]; then
