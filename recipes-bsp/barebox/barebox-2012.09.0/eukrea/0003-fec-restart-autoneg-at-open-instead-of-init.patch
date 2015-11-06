@@ -1,0 +1,42 @@
+From e03cbac6e6a71d549659c4c465422fda41ba8074 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Fri, 31 Aug 2012 21:07:05 +0200
+Subject: [PATCH 3/5] fec: restart autoneg at open instead of init
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+this saves some time during boot when ethernet is not needed in barebox
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ drivers/net/fec_imx.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/fec_imx.c b/drivers/net/fec_imx.c
+index 599a9b4..2bc06a9 100644
+--- a/drivers/net/fec_imx.c
++++ b/drivers/net/fec_imx.c
+@@ -347,9 +347,6 @@ static int fec_init(struct eth_device *dev)
+ 	/* size of each buffer */
+ 	writel(FEC_MAX_PKT_SIZE, fec->regs + FEC_EMRBR);
+ 
+-	if (fec->xcv_type != SEVENWIRE)
+-		miidev_restart_aneg(&fec->miidev);
+-
+ 	return 0;
+ }
+ 
+@@ -363,6 +360,9 @@ static int fec_open(struct eth_device *edev)
+ 	int ret;
+ 	u32 ecr;
+ 
++	if (fec->xcv_type != SEVENWIRE)
++		miidev_restart_aneg(&fec->miidev);
++
+ 	/*
+ 	 * Initialize RxBD/TxBD rings
+ 	 */
+-- 
+1.7.7.6
+

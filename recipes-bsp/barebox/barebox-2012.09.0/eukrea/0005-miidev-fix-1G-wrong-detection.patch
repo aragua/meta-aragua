@@ -1,0 +1,80 @@
+From 7d8e4d12e8c3c2f4749b2e73a3edd1b6d46a5283 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Thu, 6 Sep 2012 16:46:52 +0200
+Subject: [PATCH 5/5] miidev: fix 1G wrong detection
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+since 99e72c8bbdbdc690025a5868d831f1fe79ad56fc on an i.MX51 based board,
+I get : "phy0: Link is up - 1000/Full". It seems miidev tries to probe
+the PHY to early and gets 0x3ffff which leads to the wrong capabilities
+setting.
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ drivers/net/miidev.c |   33 +++++++++------------------------
+ 1 files changed, 9 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/net/miidev.c b/drivers/net/miidev.c
+index 75b53e3..e0f9d67 100644
+--- a/drivers/net/miidev.c
++++ b/drivers/net/miidev.c
+@@ -131,6 +131,14 @@ int miidev_get_status(struct mii_device *mdev)
+ 
+ 	status = ret & BMSR_LSTATUS ? MIIDEV_STATUS_IS_UP : 0;
+ 
++	if (ret & BMSR_ESTATEN) {
++		ret = mii_read(mdev, mdev->address, MII_ESTATUS);
++		if (ret < 0)
++			goto err_out;
++		if (ret & (ESTATUS_1000_TFULL | ESTATUS_1000_THALF))
++			mdev->capabilities = MIIDEV_CAPABLE_1000M;
++	}
++
+ 	ret = mii_read(mdev, mdev->address, MII_BMCR);
+ 	if (ret < 0)
+ 		goto err_out;
+@@ -239,27 +247,8 @@ static struct file_operations miidev_ops = {
+ static int miidev_probe(struct device_d *dev)
+ {
+ 	struct mii_device *mdev = dev->priv;
+-	int val;
+-	int caps = 0;
+ 
+-	val = mii_read(mdev, mdev->address, MII_PHYSID1);
+-	if (val < 0 || val == 0xffff)
+-		goto err_out;
+-	val = mii_read(mdev, mdev->address, MII_PHYSID2);
+-	if (val < 0 || val == 0xffff)
+-		goto err_out;
+-	val = mii_read(mdev, mdev->address, MII_BMSR);
+-	if (val < 0)
+-		goto err_out;
+-	if (val & BMSR_ESTATEN) {
+-		val = mii_read(mdev, mdev->address, MII_ESTATUS);
+-		if (val < 0)
+-			goto err_out;
+-		if (val & (ESTATUS_1000_TFULL | ESTATUS_1000_THALF))
+-			caps = MIIDEV_CAPABLE_1000M;
+-	}
+-
+-	mdev->capabilities = caps;
++	mdev->capabilities = 0;
+ 	mdev->cdev.name = asprintf("phy%d", dev->id);
+ 	mdev->cdev.size = 64;
+ 	mdev->cdev.ops = &miidev_ops;
+@@ -268,10 +257,6 @@ static int miidev_probe(struct device_d *dev)
+ 	devfs_create(&mdev->cdev);
+ 	list_add_tail(&mdev->list, &miidev_list);
+ 	return 0;
+-
+-err_out:
+-	dev_err(dev, "cannot read PHY registers (addr %d)\n", mdev->address);
+-	return -ENODEV;
+ }
+ 
+ static void miidev_remove(struct device_d *dev)
+-- 
+1.7.7.6
+

@@ -1,0 +1,29 @@
+From f379934040e39fb927f59dd0b15a0a973877f5e8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Fri, 31 Aug 2012 21:07:19 +0200
+Subject: [PATCH 2/5] net: miidev: really wait for auto negotiation
+
+miidev_wait_aneg() polled the wrong bit, so link detection did fail on
+boards where the PHY had to come out of a powerdown mode.
+
+Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+---
+ drivers/net/miidev.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/net/miidev.c b/drivers/net/miidev.c
+index b49944b..75b53e3 100644
+--- a/drivers/net/miidev.c
++++ b/drivers/net/miidev.c
+@@ -116,7 +116,7 @@ int miidev_wait_aneg(struct mii_device *mdev)
+ 			return -ETIMEDOUT;
+ 		}
+ 
+-	} while (!(status & BMSR_LSTATUS));
++	} while (!(status & BMSR_ANEGCOMPLETE));
+ 
+ 	return 0;
+ }
+-- 
+1.7.7.6
+

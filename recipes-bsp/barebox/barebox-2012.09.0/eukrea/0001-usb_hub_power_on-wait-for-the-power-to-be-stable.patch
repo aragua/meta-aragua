@@ -1,0 +1,35 @@
+From f652585d3d647afcb6600713bb404f2d5de9af9b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Tue, 28 Aug 2012 17:20:50 +0200
+Subject: [PATCH 1/5] usb_hub_power_on: wait for the power to be stable
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Linux & u-boot are using a 100 ms value
+- on an i.MX35 board with host connected to a 4 ports HUB,
+200 ms is required to get several USB mass storage to be
+properly detected,
+- without this, I don't see peripherals connected behind the hub.
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ drivers/usb/core/usb.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+index 81ae9f1..c523f83 100644
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -948,7 +948,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
+ 		usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
+ 		USB_HUB_PRINTF("port %d returns %lX\n", i + 1, dev->status);
+ 	}
+-	mdelay(20);
++	mdelay(200);
+ }
+ 
+ #define MAX_TRIES 5
+-- 
+1.7.7.6
+

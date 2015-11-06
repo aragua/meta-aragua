@@ -1,0 +1,86 @@
+From c60fd7371875c11a15c51513b37225a42ab26dcd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Thu, 4 Oct 2012 14:00:47 +0200
+Subject: [PATCH 2/2] eukrea-cpuimx25: add WQVGA display choice
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ arch/arm/boards/eukrea_cpuimx25/env/config        |    2 +-
+ arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c |   19 +++++++++++++++++++
+ arch/arm/mach-imx/Kconfig                         |    7 +++++++
+ 3 files changed, 27 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/boards/eukrea_cpuimx25/env/config b/arch/arm/boards/eukrea_cpuimx25/env/config
+index b6bf93f..98529da 100644
+--- a/arch/arm/boards/eukrea_cpuimx25/env/config
++++ b/arch/arm/boards/eukrea_cpuimx25/env/config
+@@ -2,7 +2,7 @@
+ 
+ # otg port mode : can be 'host' or 'device'
+ otg_mode="device"
+-# video : can be CMO-QVGA, URT-WVGA, DVI-VGA or DVI-SVGA
++# video : can be CMO-QVGA, 43-WQVGA, URT-WVGA, DVI-VGA or DVI-SVGA
+ video="CMO-QVGA"
+ 
+ hostname=eukrea-cpuimx25
+diff --git a/arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c b/arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c
+index 83b9b1c..d2f5b84 100644
+--- a/arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c
++++ b/arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c
+@@ -112,6 +112,7 @@ struct imx_nand_platform_data nand_info = {
+ };
+ 
+ static struct imx_fb_videomode imxfb_mode = {
++#ifdef CONFIG_EUKREA_CPUIMX25_CMOQVGA
+ 	.mode = {
+ 		.name		= "CMO-QVGA",
+ 		.refresh	= 60,
+@@ -127,6 +128,24 @@ static struct imx_fb_videomode imxfb_mode = {
+ 	},
+ 	.pcr		= 0xCAD08B80,
+ 	.bpp		= 16,
++#else
++	.mode = {
++		.name		= "43-WQVGA",
++		.refresh	= 60,
++		.xres		= 480,
++		.yres		= 272,
++		.pixclock	= KHZ2PICOS(9072),
++		.hsync_len	= 10,
++		.left_margin	= 40,
++		.right_margin	= 5,
++		.vsync_len	= 10,
++		.upper_margin	= 8,
++		.lower_margin	= 8,
++	},
++	.bpp    = 16,
++	.pcr    = 0xCAE08B80,
++
++#endif
+ };
+ 
+ static struct imx_fb_platform_data eukrea_cpuimx25_fb_data = {
+diff --git a/arch/arm/mach-imx/Kconfig b/arch/arm/mach-imx/Kconfig
+index 6418d10..a8f7d21 100644
+--- a/arch/arm/mach-imx/Kconfig
++++ b/arch/arm/mach-imx/Kconfig
+@@ -511,6 +511,13 @@ config EUKREA_CPUIMX25_64MB
+ config EUKREA_CPUIMX25_128MB
+ 	bool "128 MB"
+ endchoice
++choice
++	prompt "Display type"
++config EUKREA_CPUIMX25_CMOQVGA
++	bool "3.5-QVGA 320x240"
++config EUKREA_CPUIMX25_43WQVGA
++	bool "4.3-WQVGA 480x272"
++endchoice
+ endif
+ 
+ if MACH_EUKREA_CPUIMX27
+-- 
+1.7.7.6
+

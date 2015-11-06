@@ -1,0 +1,131 @@
+From 392153f934a5b3b0d7bdd4666c724504250c2d0f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Thu, 20 Sep 2012 16:14:53 +0200
+Subject: [PATCH 1/2] eukrea-cpuimx25: add 128MB configuration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c |   25 ++++++++++++++++++++-
+ arch/arm/boards/eukrea_cpuimx25/lowlevel.c        |   18 +++++++++++----
+ arch/arm/mach-imx/Kconfig                         |   10 ++++++++
+ 3 files changed, 47 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c b/arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c
+index 0aac13c..83b9b1c 100644
+--- a/arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c
++++ b/arch/arm/boards/eukrea_cpuimx25/eukrea_cpuimx25.c
+@@ -55,6 +55,7 @@ void __naked __flash_header_start go(void)
+ 	barebox_arm_head();
+ }
+ 
++#ifdef CONFIG_EUKREA_CPUIMX25_64MB
+ struct imx_dcd_entry __dcd_entry_section dcd_entry[] = {
+ 	{ .ptr_type = 4, .addr = 0xb8001010, .val = 0x00000004, },
+ 	{ .ptr_type = 4, .addr = 0xb8001000, .val = 0x92100000, },
+@@ -69,6 +70,22 @@ struct imx_dcd_entry __dcd_entry_section dcd_entry[] = {
+ 	{ .ptr_type = 4, .addr = 0xb8001004, .val = 0x00295729, },
+ 	{ .ptr_type = 4, .addr = 0x53f80008, .val = 0x20034000, },
+ };
++#else
++struct imx_dcd_entry __dcd_entry_section dcd_entry[] = {
++	{ .ptr_type = 4, .addr = 0xb8001010, .val = 0x00000004, },
++	{ .ptr_type = 4, .addr = 0xb8001000, .val = 0x93100000, },
++	{ .ptr_type = 1, .addr = 0x80000400, .val = 0x12344321, },
++	{ .ptr_type = 4, .addr = 0xb8001000, .val = 0xa3100000, },
++	{ .ptr_type = 4, .addr = 0x80000000, .val = 0x12344321, },
++	{ .ptr_type = 4, .addr = 0x80000000, .val = 0x12344321, },
++	{ .ptr_type = 4, .addr = 0xb8001000, .val = 0xb3100000, },
++	{ .ptr_type = 1, .addr = 0x80000033, .val = 0xda, },
++	{ .ptr_type = 1, .addr = 0x82000000, .val = 0xff, },
++	{ .ptr_type = 4, .addr = 0xb8001000, .val = 0x83216080, },
++	{ .ptr_type = 4, .addr = 0xb8001004, .val = 0x00295729, },
++	{ .ptr_type = 4, .addr = 0x53f80008, .val = 0x20034000, },
++};
++#endif
+ 
+ struct imx_flash_header __flash_header_section flash_header = {
+ 	.app_code_jump_vector	= DEST_BASE + 0x1000,
+@@ -155,9 +172,15 @@ static struct fsl_usb2_platform_data usb_pdata = {
+ 	.phy_mode	= FSL_USB2_PHY_UTMI,
+ };
+ 
++#ifdef CONFIG_EUKREA_CPUIMX25_64MB
++#define RAM_SIZE	64
++#else
++#define RAM_SIZE	128
++#endif
++
+ static int eukrea_cpuimx25_mem_init(void)
+ {
+-	arm_add_mem_device("ram0", IMX_SDRAM_CS0, 64 * 1024 * 1024);
++	arm_add_mem_device("ram0", IMX_SDRAM_CS0, RAM_SIZE * 1024 * 1024);
+ 
+ 	return 0;
+ }
+diff --git a/arch/arm/boards/eukrea_cpuimx25/lowlevel.c b/arch/arm/boards/eukrea_cpuimx25/lowlevel.c
+index 89066e9..8faea29 100644
+--- a/arch/arm/boards/eukrea_cpuimx25/lowlevel.c
++++ b/arch/arm/boards/eukrea_cpuimx25/lowlevel.c
+@@ -33,6 +33,14 @@
+ #include <asm-generic/memory_layout.h>
+ #include <asm/system.h>
+ 
++#ifdef CONFIG_EUKREA_CPUIMX25_64MB
++#define ESDCTL0_CFG	0x82210000
++#define MR_ADDR		0x1000000
++#else
++#define ESDCTL0_CFG	0x83210000
++#define MR_ADDR		0x2000000
++#endif
++
+ #ifdef CONFIG_NAND_IMX_BOOT
+ static void __bare_init __naked insdram(void)
+ {
+@@ -137,15 +145,15 @@ void __bare_init __naked board_init_lowlevel(void)
+ 			"bne 1b":"=r" (loops):"0" (loops));
+ 
+ 	writel(0x0029572B, ESDCFG0);
+-	writel(0x92210000, ESDCTL0);
++	writel(ESDCTL0_CFG | 0x10000000, ESDCTL0);
+ 	writeb(0xda, IMX_SDRAM_CS0 + 0x400);
+-	writel(0xA2210000, ESDCTL0);
++	writel(ESDCTL0_CFG | 0x20000000, ESDCTL0);
+ 	writeb(0xda, IMX_SDRAM_CS0);
+ 	writeb(0xda, IMX_SDRAM_CS0);
+-	writel(0xB2210000, ESDCTL0);
++	writel(ESDCTL0_CFG | 0x30000000, ESDCTL0);
+ 	writeb(0xda, IMX_SDRAM_CS0 + 0x33);
+-	writeb(0xda, IMX_SDRAM_CS0 + 0x1000000);
+-	writel(0x82216080, ESDCTL0);
++	writeb(0xda, IMX_SDRAM_CS0 + MR_ADDR);
++	writel(ESDCTL0_CFG | 0x00006080, ESDCTL0);
+ 
+ #ifdef CONFIG_NAND_IMX_BOOT
+ 	/* skip NAND boot if not running from NFC space */
+diff --git a/arch/arm/mach-imx/Kconfig b/arch/arm/mach-imx/Kconfig
+index ce5edaa..6418d10 100644
+--- a/arch/arm/mach-imx/Kconfig
++++ b/arch/arm/mach-imx/Kconfig
+@@ -503,6 +503,16 @@ config PCM037_SDRAM_BANK1_256MB
+ endchoice
+ endif
+ 
++if MACH_EUKREA_CPUIMX25
++choice
++	prompt "RAM Size"
++config EUKREA_CPUIMX25_64MB
++	bool "64 MB"
++config EUKREA_CPUIMX25_128MB
++	bool "128 MB"
++endchoice
++endif
++
+ if MACH_EUKREA_CPUIMX27
+ choice
+ 	prompt "SDRAM Size"
+-- 
+1.7.7.6
+
