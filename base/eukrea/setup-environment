@@ -39,7 +39,7 @@ If undefined, this script will set \$MACHINE to 'eukrea-cpuimx51'
     if [ $? -eq 0 ]; then
         #display only actia machines
         echo -e "
-Supported machines: `echo; ls sources/*eukrea*/conf/machine/*.conf \
+Supported machines: `echo; ls sources/meta-aragua/conf/machine/*.conf \
 | sed s/\.conf//g | sed -r 's/^.+\///' | xargs -I% echo -e "\t%"`
 
 To build for a machine listed above, run this script as:
@@ -98,7 +98,7 @@ if [ -z "$MACHINE" ]; then
 fi
 
 # Check the machine type specified, only in *actia* (so suppose actia related)
-LIST_MACHINES=`ls -1 $CWD/sources/*eukrea*/conf/machine`
+LIST_MACHINES=`ls -1 $CWD/sources/meta-aragua/conf/machine`
 VALID_MACHINE=`echo -e "$LIST_MACHINES" | grep ${MACHINE}.conf$ | wc -l`
 if [ "x$MACHINE" = "x" ] || [ "$VALID_MACHINE" = "0" ]; then
     echo -e "\nThe \$MACHINE you have specified ($MACHINE) is not supported by this build setup"
