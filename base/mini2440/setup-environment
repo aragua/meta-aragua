@@ -196,7 +196,7 @@ EOF
 fi
 
 if ! grep -q 'INCOMPATIBLE_LICENSE\s*=' conf/local.conf; then
-    echo "\#INCOMPATIBLE_LICENSE = \"GPLv3\"" >> conf/local.conf
+    echo "#INCOMPATIBLE_LICENSE = \"GPLv3\"" >> conf/local.conf
 fi
 
 if ! grep -q 'INHERIT\s*+=' conf/local.conf; then
