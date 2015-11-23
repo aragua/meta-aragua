@@ -1,0 +1,45 @@
+From e65ca99b74749085f7cf89a07eefaa807e4d535a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Mon, 30 Apr 2012 11:22:14 +0200
+Subject: [PATCH 02/24] usb: fsl_mxc_udc.c: fix mxc_ahb_clk disable for i.MX25
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+as i.MX35, i.MX25 doesn't have this clock so don't try to disable/put it.
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+Cc: Sascha Hauer <kernel@pengutronix.de>
+---
+ drivers/usb/gadget/fsl_mxc_udc.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/gadget/fsl_mxc_udc.c b/drivers/usb/gadget/fsl_mxc_udc.c
+index 8bbf673..4e30fb6 100644
+--- a/drivers/usb/gadget/fsl_mxc_udc.c
++++ b/drivers/usb/gadget/fsl_mxc_udc.c
+@@ -78,10 +78,10 @@ eclkrate:
+ 	clk_put(mxc_usb_clk);
+ 	mxc_usb_clk = NULL;
+ egusb:
+-	if (!cpu_is_mx35())
++	if (!cpu_is_mx35() && !cpu_is_mx25())
+ 		clk_disable(mxc_ahb_clk);
+ eenahb:
+-	if (!cpu_is_mx35())
++	if (!cpu_is_mx35() && !cpu_is_mx25())
+ 		clk_put(mxc_ahb_clk);
+ 	return ret;
+ }
+@@ -120,7 +120,7 @@ void fsl_udc_clk_release(void)
+ 		clk_disable(mxc_usb_clk);
+ 		clk_put(mxc_usb_clk);
+ 	}
+-	if (!cpu_is_mx35()) {
++	if (!cpu_is_mx35() && !cpu_is_mx25()) {
+ 		clk_disable(mxc_ahb_clk);
+ 		clk_put(mxc_ahb_clk);
+ 	}
+-- 
+1.7.7.6
+

@@ -1,0 +1,35 @@
+From 81a98b8aaf447dd0645caf4c6b7209962b99b356 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Tue, 2 Oct 2012 18:34:43 +0200
+Subject: [PATCH] eukrea-cpuimx51sd: fix audio by providing the correct
+ ext_port to audmux
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ sound/soc/imx/eukrea-tlv320.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
+
+diff --git a/sound/soc/imx/eukrea-tlv320.c b/sound/soc/imx/eukrea-tlv320.c
+index 7d4475c..73fd72e 100644
+--- a/sound/soc/imx/eukrea-tlv320.c
++++ b/sound/soc/imx/eukrea-tlv320.c
+@@ -118,7 +118,12 @@ static int __init eukrea_tlv320_init(void)
+ 	} else if (machine_is_eukrea_cpuimx25sd() ||
+ 		   machine_is_eukrea_cpuimx35sd() ||
+ 		   machine_is_eukrea_cpuimx51sd()) {
+-		ext_port = machine_is_eukrea_cpuimx25sd() ? 4 : 3;
++		if (machine_is_eukrea_cpuimx51sd())
++			ext_port = 2;
++		else if(machine_is_eukrea_cpuimx35sd())
++			ext_port = 3;
++		else
++			ext_port = 4;
+ 		imx_audmux_v2_configure_port(int_port,
+ 			IMX_AUDMUX_V2_PTCR_SYN |
+ 			IMX_AUDMUX_V2_PTCR_TFSDIR |
+-- 
+1.7.7.6
+

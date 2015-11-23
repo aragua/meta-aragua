@@ -1,0 +1,30 @@
+From 990943d43e50691542762796fa5e44d7447fa265 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Mon, 30 Apr 2012 12:08:37 +0200
+Subject: [PATCH 12/24] ARM: imx: eukrea_mbimxsd25: don't free twice
+ GPIO_SWITCH1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+Cc: Sascha Hauer <kernel@pengutronix.de>
+---
+ arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c b/arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c
+index cafa109..fcc366a 100644
+--- a/arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c
++++ b/arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c
+@@ -292,7 +292,6 @@ void __init eukrea_mbimxsd25_baseboard_init(void)
+ 
+ 	gpio_request(GPIO_LCDPWR, "LCDPWR");
+ 	gpio_direction_output(GPIO_LCDPWR, 1);
+-	gpio_free(GPIO_SWITCH1);
+ 
+ 	i2c_register_board_info(0, eukrea_mbimxsd_i2c_devices,
+ 				ARRAY_SIZE(eukrea_mbimxsd_i2c_devices));
+-- 
+1.7.7.6
+

@@ -1,0 +1,50 @@
+From ec60bd1ac930be1cb6b8de0cf7060a2280546333 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Thu, 3 May 2012 11:30:51 +0200
+Subject: [PATCH 19/24] mxc devices-commont: don't mix MX3 & MX5 IPU
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ arch/arm/plat-mxc/include/mach/devices-common.h |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/arch/arm/plat-mxc/include/mach/devices-common.h b/arch/arm/plat-mxc/include/mach/devices-common.h
+index 714166e..4266528 100644
+--- a/arch/arm/plat-mxc/include/mach/devices-common.h
++++ b/arch/arm/plat-mxc/include/mach/devices-common.h
+@@ -182,7 +182,7 @@ struct imx_imx_udc_data {
+ struct platform_device *__init imx_add_imx_udc(
+ 		const struct imx_imx_udc_data *data,
+ 		const struct imxusb_platform_data *pdata);
+-
++#if ! defined(CONFIG_SOC_IMX5)
+ #include <mach/ipu.h>
+ #include <mach/mx3fb.h>
+ #include <mach/mx3_camera.h>
+@@ -200,6 +200,7 @@ struct platform_device *__init imx_alloc_mx3_camera(
+ struct platform_device *__init imx_add_mx3_sdc_fb(
+ 		const struct imx_ipu_core_data *data,
+ 		struct mx3fb_platform_data *pdata);
++#endif
+ 
+ #include <mach/mx1_camera.h>
+ struct imx_mx1_camera_data {
+@@ -334,6 +335,7 @@ struct platform_device *__init imx_add_ahci_imx(
+ 		const struct imx_ahci_imx_data *data,
+ 		const struct ahci_platform_data *pdata);
+ 
++#if defined(CONFIG_SOC_IMX5)
+ #include <mach/ipu-v3.h>
+ struct imx_ipuv3_data {
+ 	resource_size_t iobase;
+@@ -343,3 +345,4 @@ struct imx_ipuv3_data {
+ struct platform_device *__init imx_add_ipuv3(
+ 		const struct imx_ipuv3_data *data,
+ 		const struct imx_ipuv3_platform_data *pdata);
++#endif
+-- 
+1.7.7.6
+

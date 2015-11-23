@@ -1,0 +1,44 @@
+From 36a0536a56675170f742aa3b5b4442e02e8c8384 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Tue, 1 May 2012 21:53:41 +0200
+Subject: [PATCH 16/24] ARM: imx: eukrea_mbimxsd25: add WVGA display timings
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+Cc: Sascha Hauer <kernel@pengutronix.de>
+---
+ arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c b/arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c
+index dfd2da8..384051d 100644
+--- a/arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c
++++ b/arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c
+@@ -124,6 +124,22 @@ static struct imx_fb_videomode eukrea_mximxsd_modes[] = {
+ 		.pcr	= 0xCAD08B80,
+ 	}, {
+ 		.mode = {
++			.name		= "URT-WVGA",
++			.refresh	= 60,
++			.xres		= 800,
++			.yres		= 480,
++			.pixclock	= KHZ2PICOS(33260),
++			.left_margin	= 108,
++			.right_margin	= 88,
++			.upper_margin	= 8,
++			.lower_margin	= 35,
++			.hsync_len	= 60,
++			.vsync_len	= 2,
++		},
++		.bpp	= 16,
++		.pcr	= 0xCAC08B80,
++	}, {
++		.mode = {
+ 			.name		= "DVI-VGA",
+ 			.refresh	= 60,
+ 			.xres		= 640,
+-- 
+1.7.7.6
+

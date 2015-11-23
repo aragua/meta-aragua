@@ -1,0 +1,29 @@
+From 63dc7253eb282afdfa602519a628cf01f86b422d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Thu, 14 Jun 2012 14:23:59 +0200
+Subject: [PATCH 23/24] tsc2007: configure IRQ on falling edge
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ drivers/input/touchscreen/tsc2007.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
+index 1473d23..95119799 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -340,7 +340,7 @@ static int __devinit tsc2007_probe(struct i2c_client *client,
+ 		pdata->init_platform_hw();
+ 
+ 	err = request_threaded_irq(ts->irq, tsc2007_hard_irq, tsc2007_soft_irq,
+-				   IRQF_ONESHOT, client->dev.driver->name, ts);
++				  IRQF_TRIGGER_FALLING | IRQF_ONESHOT, client->dev.driver->name, ts);
+ 	if (err < 0) {
+ 		dev_err(&client->dev, "irq %d busy?\n", ts->irq);
+ 		goto err_free_mem;
+-- 
+1.7.7.6
+

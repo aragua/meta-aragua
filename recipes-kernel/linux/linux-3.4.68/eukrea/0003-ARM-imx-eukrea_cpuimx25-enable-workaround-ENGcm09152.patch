@@ -1,0 +1,32 @@
+From 98f25078b30fb6a5a726470341d2b521064dbbfe Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Sat, 10 Dec 2011 17:19:50 +0100
+Subject: [PATCH 03/24] ARM: imx: eukrea_cpuimx25: enable workaround
+ ENGcm09152
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+this fix usb device controler behaviour in gadget mode
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+Cc: Sascha Hauer <kernel@pengutronix.de>
+---
+ arch/arm/mach-imx/mach-eukrea_cpuimx25.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-imx/mach-eukrea_cpuimx25.c b/arch/arm/mach-imx/mach-eukrea_cpuimx25.c
+index 76a97a5..b22fb02 100644
+--- a/arch/arm/mach-imx/mach-eukrea_cpuimx25.c
++++ b/arch/arm/mach-imx/mach-eukrea_cpuimx25.c
+@@ -106,6 +106,7 @@ static const struct mxc_usbh_platform_data usbh2_pdata __initconst = {
+ static const struct fsl_usb2_platform_data otg_device_pdata __initconst = {
+ 	.operating_mode = FSL_USB2_DR_DEVICE,
+ 	.phy_mode       = FSL_USB2_PHY_UTMI,
++	.workaround     = FLS_USB2_WORKAROUND_ENGCM09152,
+ };
+ 
+ static int otg_mode_host;
+-- 
+1.7.7.6
+

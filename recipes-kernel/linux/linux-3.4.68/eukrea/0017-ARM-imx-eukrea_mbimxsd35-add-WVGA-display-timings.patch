@@ -1,0 +1,43 @@
+From 23bfcd4c21b12dc160693f430020c2fc25ac46e5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Tue, 1 May 2012 22:50:52 +0200
+Subject: [PATCH 17/24] ARM: imx: eukrea_mbimxsd35: add WVGA display timings
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+Cc: Sascha Hauer <kernel@pengutronix.de>
+---
+ arch/arm/mach-imx/eukrea_mbimxsd35-baseboard.c |   15 +++++++++++++++
+ 1 files changed, 15 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-imx/eukrea_mbimxsd35-baseboard.c b/arch/arm/mach-imx/eukrea_mbimxsd35-baseboard.c
+index 557f6c48..f40afae 100644
+--- a/arch/arm/mach-imx/eukrea_mbimxsd35-baseboard.c
++++ b/arch/arm/mach-imx/eukrea_mbimxsd35-baseboard.c
+@@ -58,6 +58,21 @@ static const struct fb_videomode fb_modedb[] = {
+ 		.sync		= 0,
+ 		.vmode		= FB_VMODE_NONINTERLACED,
+ 		.flag		= 0,
++	}, {
++		.name		= "URT-WVGA",
++		.refresh	= 60,
++		.xres		= 800,
++		.yres		= 480,
++		.pixclock	= KHZ2PICOS(33260),
++		.left_margin	= 64,
++		.right_margin	= 64,
++		.upper_margin	= 8,
++		.lower_margin	= 8,
++		.hsync_len	= 64,
++		.vsync_len	= 2,
++		.sync		= FB_SYNC_OE_ACT_HIGH | FB_SYNC_CLK_INVERT,
++		.vmode		= FB_VMODE_NONINTERLACED,
++		.flag		= 0,
+ 	},
+ 	{
+ 		.name		= "DVI-VGA",
+-- 
+1.7.7.6
+

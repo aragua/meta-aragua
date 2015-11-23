@@ -1,0 +1,141 @@
+From 1d8af63831dad9dfa8c09825aca8e435e71861dc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eric=20B=C3=A9nard?= <eric@eukrea.com>
+Date: Thu, 3 May 2012 11:33:38 +0200
+Subject: [PATCH 21/24] ARM: imx: eukrea_mbimxsd51: add display support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eric Bénard <eric@eukrea.com>
+---
+ arch/arm/mach-imx/Kconfig                      |    1 +
+ arch/arm/mach-imx/eukrea_mbimxsd51-baseboard.c |   77 ++++++++++++++++++++++++
+ 2 files changed, 78 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-imx/Kconfig b/arch/arm/mach-imx/Kconfig
+index 18399d1..c0ba12e 100644
+--- a/arch/arm/mach-imx/Kconfig
++++ b/arch/arm/mach-imx/Kconfig
+@@ -707,6 +707,7 @@ choice
+ config MACH_EUKREA_MBIMXSD51_BASEBOARD
+ 	prompt "Eukrea MBIMXSD development board"
+ 	bool
++	select IMX_HAVE_PLATFORM_IMX_IPUV3
+ 	select IMX_HAVE_PLATFORM_IMX_SSI
+ 	select IMX_HAVE_PLATFORM_SDHCI_ESDHC_IMX
+ 	select LEDS_GPIO_REGISTER
+diff --git a/arch/arm/mach-imx/eukrea_mbimxsd51-baseboard.c b/arch/arm/mach-imx/eukrea_mbimxsd51-baseboard.c
+index 920e42a..8dfdb29 100644
+--- a/arch/arm/mach-imx/eukrea_mbimxsd51-baseboard.c
++++ b/arch/arm/mach-imx/eukrea_mbimxsd51-baseboard.c
+@@ -30,11 +30,15 @@
+ #include <linux/i2c.h>
+ #include <video/platform_lcd.h>
+ #include <linux/backlight.h>
++#include <linux/mfd/imx-ipu-v3.h>
++#include <linux/fb.h>
++#include <linux/delay.h>
+ 
+ #include <asm/mach-types.h>
+ #include <asm/mach/arch.h>
+ #include <asm/mach/time.h>
+ #include <asm/mach/map.h>
++#include <mach/ipu-v3.h>
+ 
+ #include <mach/hardware.h>
+ #include <mach/common.h>
+@@ -77,6 +81,31 @@ static iomux_v3_cfg_t eukrea_mbimxsd_pads[] = {
+ 	MX51_PAD_DI1_D1_CS__GPIO3_4,
+ 	/* LCD RST */
+ 	MX51_PAD_CSI1_D9__GPIO3_13,
++	/* LCD */
++	MX51_PAD_DISP1_DAT0__DISP1_DAT0,
++	MX51_PAD_DISP1_DAT1__DISP1_DAT1,
++	MX51_PAD_DISP1_DAT2__DISP1_DAT2,
++	MX51_PAD_DISP1_DAT3__DISP1_DAT3,
++	MX51_PAD_DISP1_DAT4__DISP1_DAT4,
++	MX51_PAD_DISP1_DAT5__DISP1_DAT5,
++	MX51_PAD_DISP1_DAT6__DISP1_DAT6,
++	MX51_PAD_DISP1_DAT7__DISP1_DAT7,
++	MX51_PAD_DISP1_DAT8__DISP1_DAT8,
++	MX51_PAD_DISP1_DAT9__DISP1_DAT9,
++	MX51_PAD_DISP1_DAT10__DISP1_DAT10,
++	MX51_PAD_DISP1_DAT11__DISP1_DAT11,
++	MX51_PAD_DISP1_DAT12__DISP1_DAT12,
++	MX51_PAD_DISP1_DAT13__DISP1_DAT13,
++	MX51_PAD_DISP1_DAT14__DISP1_DAT14,
++	MX51_PAD_DISP1_DAT15__DISP1_DAT15,
++	MX51_PAD_DISP1_DAT16__DISP1_DAT16,
++	MX51_PAD_DISP1_DAT17__DISP1_DAT17,
++	MX51_PAD_DI1_PIN3__DI1_PIN3,
++	MX51_PAD_DI1_PIN2__DI1_PIN2,
++	/* LCD Backlight */
++	MX51_PAD_DI1_D1_CS__GPIO3_4,
++	/* LCD RST */
++	MX51_PAD_CSI1_D9__GPIO3_13,
+ };
+ 
+ #define GPIO_LED1	IMX_GPIO_NR(3, 30)
+@@ -184,6 +213,52 @@ static int __init eukrea_mbimxsd51_screen_type(char *options)
+ }
+ __setup("screen_type=", eukrea_mbimxsd51_screen_type);
+ 
++static struct fb_videomode fb_modedb[] = {
++	{
++		.name		= "CMO-QVGA",
++		.refresh	= 60,
++		.xres		= 320,
++		.yres		= 240,
++		.pixclock	= KHZ2PICOS(6500),
++		.left_margin	= 68,
++		.right_margin	= 20,
++		.upper_margin	= 15,
++		.lower_margin	= 4,
++		.hsync_len	= 30,
++		.vsync_len	= 3,
++		.sync		= FB_SYNC_OE_LOW_ACT,
++		.vmode		= FB_VMODE_NONINTERLACED,
++		.flag		= 0,
++	}, {
++               .name           = "URT-WVGA",
++               .refresh        = 60,
++               .xres           = 800,
++               .yres           = 480,
++               .pixclock       = KHZ2PICOS(33260),
++               .left_margin    = 64,
++               .right_margin   = 64,
++               .upper_margin   = 8,
++               .lower_margin   = 8,
++               .hsync_len      = 64,
++               .vsync_len      = 2,
++               .sync           = 0,
++               .vmode          = FB_VMODE_NONINTERLACED,
++               .flag           = 0,
++	},
++};
++
++static struct ipuv3_fb_platform_data eukrea_mbimxsd_fb0_data = {
++	.interface_pix_fmt = IPU_PIX_FMT_RGB666,
++	.flags = IMX_IPU_FB_USE_MODEDB,
++	.modes = fb_modedb,
++	.num_modes = ARRAY_SIZE(fb_modedb),
++	.display = 0,
++};
++
++static struct imx_ipuv3_platform_data ipu_data = {
++	.fb_head0_platform_data = &eukrea_mbimxsd_fb0_data,
++};
++
+ /*
+  * system init for baseboard usage. Will be called by cpuimx51sd init.
+  *
+@@ -228,4 +303,6 @@ void __init eukrea_mbimxsd51_baseboard_init(void)
+ 
+ 	gpio_led_register_device(-1, &eukrea_mbimxsd_led_info);
+ 	imx_add_gpio_keys(&eukrea_mbimxsd_button_data);
++
++	imx51_add_ipuv3(&ipu_data);
+ }
+-- 
+1.7.7.6
+
