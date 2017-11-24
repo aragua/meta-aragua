@@ -1,0 +1,9 @@
+[Unit]
+Description=Mount Home Directory
+Before=nfs-server.service
+
+[Mount]
+What=/dev/disk/by-label/home
+Where=/home
+Type=ext4
+Options=defaults

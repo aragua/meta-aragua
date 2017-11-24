@@ -1,0 +1,13 @@
+[Unit]
+Description=Check Home partition contents
+Requires=home.mount
+After=home.mount
+Before=nfs-server.service
+
+[Service]
+ExecStart=/usr/sbin/homecheck
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
